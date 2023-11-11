@@ -1,7 +1,8 @@
 package com.eerojala.wordcount.api.service;
 
+import com.eerojala.wordcount.api.model.WordCount;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -12,8 +13,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class WordCountService {
-    public List<Map.Entry<String, Integer>> getMostCommonWords(MultipartFile file, int k) throws IOException {
+    public List<WordCount> getMostCommonWords(MultipartFile file, int k) throws IOException {
+        if (k < 1) {
+            throw new IllegalArgumentException("k must be 1 or larger");
+        }
+
         String content = getContent(file);
+
+        if (content.isBlank()) {
+            throw new IllegalArgumentException("Given file cannot be blank!");
+        }
+
         var words = splitWords(content);
         var wordCountMap = mapCountPerWord(words);
 
@@ -25,20 +35,21 @@ public class WordCountService {
     }
 
     private String[] splitWords(String content) {
-        return StringUtils.deleteAny(content, ",.'!?:;\"")
-                .toLowerCase()
+        return StringUtils.normalizeSpace(content)
+                .replaceAll("[^\\p{L}\\p{N} ]", "")
                 .trim()
-                .replaceAll("\\s+", " ")
+                .toLowerCase()
                 .split(" ");
     }
     private Map<String, Integer> mapCountPerWord(String[] words) {
         return Arrays.stream(words).collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));
     }
 
-    private List<Map.Entry<String, Integer>> getMostCommonWords(Map<String, Integer> wordCountMap, int k) {
+    private List<WordCount> getMostCommonWords(Map<String, Integer> wordCountMap, int k) {
         return wordCountMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(k)
+                .map(entry -> new WordCount(entry.getKey(), entry.getValue()))
                 .toList();
     }
 }
