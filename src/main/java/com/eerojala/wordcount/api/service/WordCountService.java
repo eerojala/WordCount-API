@@ -2,44 +2,43 @@ package com.eerojala.wordcount.api.service;
 
 import com.eerojala.wordcount.api.model.WordCount;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class WordCountService {
     /**
-     * Counts k most common words from given file, and returns them in a List of WordCount objects in descending order.
+     * Counts k most common words from given string, and returns them in a List of WordCount objects in descending order.
      *
-     * @param file must not be blank
-     * @param k must be 1 or higher
+     * NOTE TO SELF:
+     * @Cachable works only if the method is called from another Spring Bean, not if called internally.
+     * Also requires a config class with annotation @EnableCaching
+     *
+     * @param content Non-blank
+     * @param k 1 or larger
      * @return
-     * @throws IOException caused by file reading.
      */
-    public List<WordCount> countMostCommonWords(MultipartFile file, int k) throws IOException {
-        if (k < 1) {
-            throw new IllegalArgumentException("k must be 1 or higher");
+    @Cacheable("results")
+    public List<WordCount> countMostCommonWords(String content, int k) {
+        if (content.isBlank()) {
+            throw new IllegalArgumentException("Given content cannot be blank");
         }
 
-        String content = getContent(file);
-
-        if (content.isBlank()) {
-            throw new IllegalArgumentException("Given file cannot be blank");
+        if (k < 1) {
+            throw new IllegalArgumentException("k must be 1 or higher");
         }
 
         var words = splitWords(content);
         var wordCountMap = mapCountPerWord(words);
 
         return countMostCommonWords(wordCountMap, k);
-    }
-
-    private String getContent(MultipartFile file) throws IOException {
-        return new String(file.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     }
 
     private String[] splitWords(String content) {

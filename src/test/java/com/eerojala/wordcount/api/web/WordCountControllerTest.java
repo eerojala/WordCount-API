@@ -2,7 +2,8 @@ package com.eerojala.wordcount.api.web;
 
 import com.eerojala.wordcount.api.model.WordCount;
 import com.eerojala.wordcount.api.service.WordCountService;
-import com.eerojala.wordcount.api.util.TestUtil;
+import com.eerojala.wordcount.api.util.MultipartFileUtil;
+import com.eerojala.wordcount.api.helper.TestUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ public class WordCountControllerTest {
     @MockBean
     private WordCountService wordCountServiceMock;
 
+    @MockBean
+    private MultipartFileUtil fileUtilMock;
+
     private MockMvc mvc;
 
     @BeforeEach
@@ -51,6 +55,7 @@ public class WordCountControllerTest {
     @Test
     void testSucceedsWithValidFileAndAmount() {
         try {
+            mockGetFileContent();
             mockGetMostCommonWords();
             Integer maxValidAmount = Integer.MAX_VALUE - 1;
             var request = createMockRequest(maxValidAmount.toString());
@@ -69,11 +74,15 @@ public class WordCountControllerTest {
         }
     }
 
-    private void mockGetMostCommonWords() throws IOException {
+    private void mockGetFileContent() throws IOException {
+        Mockito.when(fileUtilMock.getFileContent(Mockito.any(MultipartFile.class))).thenReturn("test");
+    }
+
+    private void mockGetMostCommonWords() {
         var foo = new WordCount(FOO_WORD, FOO_AMOUNT);
         var bar = new WordCount(BAR_WORD, BAR_AMOUNT);
         var mockReturnList = List.of(foo, bar);
-        Mockito.when(wordCountServiceMock.countMostCommonWords(Mockito.any(MultipartFile.class), Mockito.anyInt()))
+        Mockito.when(wordCountServiceMock.countMostCommonWords(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(mockReturnList);
     }
 
@@ -176,14 +185,15 @@ public class WordCountControllerTest {
 
     @Test
     void testFailsIfServiceMethodThrowsException() throws Exception {
+        mockGetFileContent();
         String errorMsg = "Test Exception!";
         mockGetMostCommonWordsToThrowException(errorMsg);
         var request = createMockRequest("100");
         sendRequestExpectError(request, errorMsg);
     }
 
-    private void mockGetMostCommonWordsToThrowException(String errorMsg) throws Exception  {
-        Mockito.when(wordCountServiceMock.countMostCommonWords(Mockito.any(MultipartFile.class), Mockito.anyInt()))
+    private void mockGetMostCommonWordsToThrowException(String errorMsg) {
+        Mockito.when(wordCountServiceMock.countMostCommonWords(Mockito.anyString(), Mockito.anyInt()))
                 .thenThrow(new IllegalArgumentException(errorMsg));
     }
 }

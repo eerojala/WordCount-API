@@ -1,26 +1,25 @@
-package com.eerojala.wordcount.api.util;
+package com.eerojala.wordcount.api.helper;
 
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestUtil {
     /**
-     * Creates a MockMultipartFile with a content read from a text file
-     * @param fileName Name of the file. Needs to be located in src/test/resources or in any of it's subfolders.
+     * Reads content from a file with given name.
+     * @param fileName File must be located in src/test/resources or in any of it's subfolders
      * @return
      * @throws Exception
      */
-    public static MockMultipartFile createMockMultipartFileFromFile(String fileName) throws Exception {
-        InputStream inputStream = TestUtil.class.getClassLoader().getResourceAsStream(fileName);
-        var content = inputStream.readAllBytes();
+    public static String readStringFromFile(String fileName) throws Exception {
+        var inputStream = TestUtil.class.getClassLoader().getResourceAsStream(fileName);
 
-        return createMockMultipartFile(content);
+        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     }
 
     /**
