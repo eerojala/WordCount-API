@@ -1,9 +1,9 @@
 package com.eerojala.wordcount.api.web;
 
+import com.eerojala.wordcount.api.helper.TestUtil;
 import com.eerojala.wordcount.api.model.WordCount;
 import com.eerojala.wordcount.api.service.WordCountService;
 import com.eerojala.wordcount.api.util.MultipartFileUtil;
-import com.eerojala.wordcount.api.helper.TestUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 public class WordCountControllerTest {
@@ -53,25 +51,23 @@ public class WordCountControllerTest {
     }
 
     @Test
-    void testSucceedsWithValidFileAndAmount() {
-        try {
-            mockGetFileContent();
-            mockGetMostCommonWords();
-            Integer maxValidAmount = Integer.MAX_VALUE - 1;
-            var request = createMockRequest(maxValidAmount.toString());
-            mvc.perform(request)
-                    .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].word").value(FOO_WORD))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].amount").value(FOO_AMOUNT.toString()))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].word").value(BAR_WORD))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].amount").value(BAR_AMOUNT.toString()));
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+    void testSucceedsWithValidFileAndAmount() throws Exception {
+        mockGetFileContent();
+        mockGetMostCommonWords();
+        // NOTE: File size does not matter for MockMvc, see the commented out test further below for details
+        var bigFile = TestUtil.createMockMultipartFileFromFile("big.txt");
+        Integer maxValidAmount = Integer.MAX_VALUE - 1;
+        var request = createMockRequest(bigFile, maxValidAmount.toString());
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].word").value(FOO_WORD))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].amount").value(FOO_AMOUNT.toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].word").value(BAR_WORD))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].amount").value(BAR_AMOUNT.toString()));
+
     }
 
     private void mockGetFileContent() throws IOException {
@@ -130,9 +126,24 @@ public class WordCountControllerTest {
                 "'org.springframework.web.multipart.MultipartFile'; Cannot convert value of type 'java.lang.String' " +
                 "to required type 'org.springframework.web.multipart.MultipartFile': no matching editors or " +
                 "conversion strategy found'";
-        sendRequestExpectError(request,errorMsg);
-
+        sendRequestExpectError(request, errorMsg);
     }
+
+    /*
+     * NOTE: Cannot test upload limits with MockMvc because the file size checks are done in Tomcat which is not used
+     * in the mock environment.
+     *
+     * If you want to test this you need to start a real server environment.
+     *
+     * See here: https://stackoverflow.com/a/68086006
+     *
+     */
+/*    @Test
+    void testFailsWithTooBigFile() throws Exception {
+        var tooBigFile = TestUtil.createMockMultipartFileFromFile("too_big.txt");
+        var request = createMockRequest(tooBigFile, "100");
+        sendRequestExpectError(request, "dsada");
+    }*/
 
     @Test
     void testFailsWithNullAmount() throws Exception {

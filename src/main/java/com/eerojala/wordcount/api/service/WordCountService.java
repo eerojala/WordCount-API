@@ -21,7 +21,7 @@ public class WordCountService {
      * @Cachable works only if the method is called from another Spring Bean, not if called internally.
      * Also requires a config class with annotation @EnableCaching
      *
-     * @param content Non-blank
+     * @param content Non-blank that has at least one unicode letter/numeric
      * @param k 1 or larger
      * @return
      */
@@ -35,24 +35,33 @@ public class WordCountService {
             throw new IllegalArgumentException("k must be 1 or higher");
         }
 
-        var words = splitWords(content);
+        var cleanedContent = cleanContent(content);
+
+        if (cleanedContent.isBlank()) {
+            throw new IllegalArgumentException("Given content needs to contain at least one unicode letter or numeric");
+        }
+
+        var words = cleanedContent.split(" ");
         var wordCountMap = mapCountPerWord(words);
 
-        return countMostCommonWords(wordCountMap, k);
+        return getMostCommonWords(wordCountMap, k);
     }
 
-    private String[] splitWords(String content) {
+    private String cleanContent(String content) {
         return StringUtils.normalizeSpace(content)
+                /*
+                 * \p{L} = Any unicode letter, \p{N} = Any numeric
+                 * i.e. remove characters which are not letters, numerics or whitespace
+                 */
                 .replaceAll("[^\\p{L}\\p{N} ]", "")
                 .trim()
-                .toLowerCase()
-                .split(" ");
+                .toLowerCase();
     }
     private Map<String, Integer> mapCountPerWord(String[] words) {
         return Arrays.stream(words).collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));
     }
 
-    private List<WordCount> countMostCommonWords(Map<String, Integer> wordCountMap, int k) {
+    private List<WordCount> getMostCommonWords(Map<String, Integer> wordCountMap, int k) {
         return wordCountMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(k)

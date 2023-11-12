@@ -64,7 +64,7 @@ public class WordCountServiceTest {
 
         assertTrue(wordCountAtIndexEitherOr(result, 0, foo, bar));
         assertTrue(wordCountAtIndexEitherOr(result, 1, foo, bar));
-        assertNotEquals(result.get(0), result.get(1));
+        assertNotEquals(result.get(0), result.get(1)); // Record default equals checks fields
 
         assertTrue(wordCountAtIndexEitherOr(result, 2, hello, world));
         assertTrue(wordCountAtIndexEitherOr(result, 3, world, hello));
@@ -136,7 +136,7 @@ public class WordCountServiceTest {
     }
 
     @Test
-    void testCountMostCommonWordsThrowsIllegalArgumentExceptionWithBlankFile() {
+    void testCountMostCommonWordsThrowsIllegalArgumentExceptionWithBlankString() {
         TestUtil.assertIllegalArgumentException(() ->  service.countMostCommonWords("", 1),
                 "Given content cannot be blank");
     }
@@ -145,5 +145,11 @@ public class WordCountServiceTest {
     void testCountMostCommonWordsThrowsIllegalArgumentExceptionWithKTooSmall() {
         TestUtil.assertIllegalArgumentException(() -> service.countMostCommonWords("test", 0),
                 "k must be 1 or higher");
+    }
+
+    @Test
+    void testCountMostCommonWordsThrowsIllegalArgumentExceptionWithStringThatHasOnlySpecialCharacters() {
+        TestUtil.assertIllegalArgumentException(() -> service.countMostCommonWords("!", 1000),
+                "Given content needs to contain at least one unicode letter or numeric");
     }
 }

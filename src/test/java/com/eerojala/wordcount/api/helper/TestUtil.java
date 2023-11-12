@@ -3,6 +3,7 @@ package com.eerojala.wordcount.api.helper;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.util.StreamUtils;
 
 import java.nio.charset.StandardCharsets;
 
@@ -17,9 +18,25 @@ public class TestUtil {
      * @throws Exception
      */
     public static String readStringFromFile(String fileName) throws Exception {
+        return new String(readBytesFromFile(fileName), StandardCharsets.UTF_8);
+    }
+
+    private static byte[] readBytesFromFile(String fileName) throws Exception {
         var inputStream = TestUtil.class.getClassLoader().getResourceAsStream(fileName);
 
-        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        return StreamUtils.copyToByteArray(inputStream);
+    }
+
+    /**
+     * Creates a MockMultipartFile with content from a file with given filename
+     * @param fileName File must be located in src/test/resources or in any of it's subfolders
+     * @return
+     * @throws Exception
+     */
+    public static MockMultipartFile createMockMultipartFileFromFile(String fileName) throws Exception {
+        var fileContent = readBytesFromFile(fileName);
+
+        return createMockMultipartFile(fileContent);
     }
 
     /**
