@@ -18,6 +18,6 @@ public class WordCountController {
 
     @PostMapping("/wordcount")
     public List<WordCount> countWords(@Valid FileAndAmountDto dto) throws IOException {
-        return service.getMostCommonWords(dto.getFile(), dto.getAmount());
+        return service.countMostCommonWords(dto.getFile(), dto.getAmount());
     }
 }

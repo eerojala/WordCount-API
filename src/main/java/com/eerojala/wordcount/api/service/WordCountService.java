@@ -13,21 +13,29 @@ import java.util.stream.Collectors;
 
 @Service
 public class WordCountService {
-    public List<WordCount> getMostCommonWords(MultipartFile file, int k) throws IOException {
+    /**
+     * Counts k most common words from given file, and returns them in a List of WordCount objects in descending order.
+     *
+     * @param file must not be blank
+     * @param k must be 1 or higher
+     * @return
+     * @throws IOException caused by file reading.
+     */
+    public List<WordCount> countMostCommonWords(MultipartFile file, int k) throws IOException {
         if (k < 1) {
-            throw new IllegalArgumentException("k must be 1 or larger");
+            throw new IllegalArgumentException("k must be 1 or higher");
         }
 
         String content = getContent(file);
 
         if (content.isBlank()) {
-            throw new IllegalArgumentException("Given file cannot be blank!");
+            throw new IllegalArgumentException("Given file cannot be blank");
         }
 
         var words = splitWords(content);
         var wordCountMap = mapCountPerWord(words);
 
-        return getMostCommonWords(wordCountMap, k);
+        return countMostCommonWords(wordCountMap, k);
     }
 
     private String getContent(MultipartFile file) throws IOException {
@@ -45,7 +53,7 @@ public class WordCountService {
         return Arrays.stream(words).collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));
     }
 
-    private List<WordCount> getMostCommonWords(Map<String, Integer> wordCountMap, int k) {
+    private List<WordCount> countMostCommonWords(Map<String, Integer> wordCountMap, int k) {
         return wordCountMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(k)

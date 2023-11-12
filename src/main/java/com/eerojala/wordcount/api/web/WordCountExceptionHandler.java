@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.ArrayList;
@@ -12,22 +13,22 @@ import java.util.ArrayList;
 @RestControllerAdvice
 public class WordCountExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException exception) {
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
         return createBadRequestResponse(exception.getMessage());
     }
 
-    private ResponseEntity<String> createBadRequestResponse(String errorMsg) {
+    private ResponseEntity<ErrorResponse> createBadRequestResponse(String errorMsg) {
         return createResponse(errorMsg, HttpStatus.BAD_REQUEST);
     }
 
-    private ResponseEntity<String> createResponse(String errorMsg, HttpStatus httpStatus) {
-        String errorJsonString = "{ \"error\": \"" + errorMsg + "\"}";
-
-        return ResponseEntity.status(httpStatus).body(errorJsonString);
+    private ResponseEntity<ErrorResponse> createResponse(String errorMsg, HttpStatus httpStatus) {
+        return ResponseEntity.status(httpStatus).body(new ErrorResponse(errorMsg));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         try {
             var detailMsgArguments = exception.getDetailMessageArguments();
             var validationErrorMsgList = (ArrayList<String>) detailMsgArguments[1];
@@ -42,7 +43,10 @@ public class WordCountExceptionHandler {
     }
 
     @ExceptionHandler(FileUploadException.class)
-    public ResponseEntity<String> handleFileUploadException(FileUploadException exception) {
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleFileUploadException(FileUploadException exception) {
         return createBadRequestResponse(exception.getMessage());
     }
+
+    private record ErrorResponse(String error) {}
 }
