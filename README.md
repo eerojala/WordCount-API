@@ -5,11 +5,11 @@ Returns the most common words found in the text file in an descending order arra
 Must have Java runtime environment (JRE) installed in your computer (Java version 21 or above) to run the .jar file. If you want to pull and compile the code yourself then you will also need a Java Development Kit (JDK, Java version 21 or above). Also if you wish to run the automated tests you additionaly need to have git and maven installed.
 
 Run app -instructions:
-1. Download the .jar file from the release page https://github.com/eerojala/WordCount-API/releases/tag/v1.0
+1. Download the .jar file from the release page https://github.com/eerojala/WordCount-API/releases/tag/v1.0.1
 2. Place the .jar on location of your choosing and open a command line terminal.
 3. Open/navigate the command line whereever you placed the .jar
 4. Before running the application make sure that nothing is running on port 8080.
-5. Run the .jar file with `java -jar wordcount.api-1.0.0.jar`
+5. Run the .jar file with `java -jar wordcount.api-1.0.1.jar`
 6. The application should start and run in localhost:8080
 7. To count word frequencies you need to make HTTP POST requests to localhost:8080/wordcount with following information:
    1. Headers: `content-type multipart/form-data`
