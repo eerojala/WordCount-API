@@ -19,7 +19,7 @@ public class WordCountService {
      *
      * NOTE TO SELF:
      * @Cachable works only if the method is called from another Spring Bean, not if called internally.
-     * Also requires a config class with annotation @EnableCaching
+     * Also requires a config class with annotation @EnableCaching + giving the cache a name (at least some times).
      *
      * @param content Non-blank that has at least one unicode letter/numeric
      * @param k 1 or larger
@@ -27,6 +27,10 @@ public class WordCountService {
      */
     @Cacheable("results")
     public List<WordCount> countMostCommonWords(String content, int k) {
+        if (content == null) {
+            throw new NullPointerException("Given content cannot be null");
+        }
+
         if (content.isBlank()) {
             throw new IllegalArgumentException("Given content cannot be blank");
         }
@@ -48,14 +52,16 @@ public class WordCountService {
     }
 
     private String cleanContent(String content) {
-        return StringUtils.normalizeSpace(content)
+        var temp = content
                 /*
                  * \p{L} = Any unicode letter, \p{N} = Any numeric
-                 * i.e. remove characters which are not letters, numerics or whitespace
+                 * i.e. remove characters which are not letters, numerics, whitespace, carriage returns or newlines
                  */
-                .replaceAll("[^\\p{L}\\p{N} ]", "")
+                .replaceAll("[^\\p{L}\\p{N}\r\n ]", "")
                 .trim()
                 .toLowerCase();
+
+        return StringUtils.normalizeSpace(temp);
     }
     private Map<String, Integer> mapCountPerWord(String[] words) {
         return Arrays.stream(words).collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));
