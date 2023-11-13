@@ -48,14 +48,16 @@ public class WordCountService {
     }
 
     private String cleanContent(String content) {
-        return StringUtils.normalizeSpace(content)
+        var temp = content
                 /*
                  * \p{L} = Any unicode letter, \p{N} = Any numeric
                  * i.e. remove characters which are not letters, numerics or whitespace
                  */
-                .replaceAll("[^\\p{L}\\p{N} ]", "")
+                .replaceAll("[^\\p{L}\\p{N}\r\n ]", "")
                 .trim()
                 .toLowerCase();
+
+        return StringUtils.normalizeSpace(temp);
     }
     private Map<String, Integer> mapCountPerWord(String[] words) {
         return Arrays.stream(words).collect(Collectors.groupingBy(Function.identity(), Collectors.summingInt(e -> 1)));

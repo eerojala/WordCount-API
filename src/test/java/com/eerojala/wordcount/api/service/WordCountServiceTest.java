@@ -97,6 +97,15 @@ public class WordCountServiceTest {
     }
 
     @Test
+    void testCountMostCommonWordsWorksWithNewlinesAndCarriageReturns() {
+        String content = "\r\ntest\n\n\rtest\rtest\r\n";
+        var test = new WordCount("test", 3);
+
+        var expected = List.of(test);
+        assertEquals(expected, service.countMostCommonWords(content, 1));
+    }
+
+    @Test
     void testCountMostCommonWordsIgnoresSpecialCharacters() throws Exception {
         String content = TestUtil.readStringFromFile("special_characters.txt");
         var test = new WordCount("test", 14);
