@@ -1,5 +1,6 @@
 package com.eerojala.wordcount.api.helper;
 
+import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.http.MediaType;
@@ -18,6 +19,10 @@ public class TestUtil {
      * @return
      */
     public static String readStringFromFile(String fileName) {
+        if (fileName == null) {
+            throw new NullPointerException("Given file name cannot be null");
+        }
+
         return new String(readBytesFromFile(fileName), StandardCharsets.UTF_8);
     }
 

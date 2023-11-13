@@ -55,7 +55,7 @@ public class WordCountService {
         var temp = content
                 /*
                  * \p{L} = Any unicode letter, \p{N} = Any numeric
-                 * i.e. remove characters which are not letters, numerics or whitespace
+                 * i.e. remove characters which are not letters, numerics, whitespace, carriage returns or newlines
                  */
                 .replaceAll("[^\\p{L}\\p{N}\r\n ]", "")
                 .trim()

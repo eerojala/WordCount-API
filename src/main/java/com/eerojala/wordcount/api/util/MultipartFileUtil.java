@@ -10,6 +10,12 @@ import java.nio.charset.StandardCharsets;
 public class MultipartFileUtil {
     private static final String NULL_POINTER_MSG = "Given file cannot be null";
 
+    /**
+     * Reads the content from the given file and returns it as UTF-8 encoded String
+     * @param file Not null
+     * @return
+     * @throws FileReadException if something went wrong during file read.
+     */
     public String readFileContent(MultipartFile file) {
         if (file == null) {
             throw new NullPointerException(NULL_POINTER_MSG);
@@ -22,6 +28,11 @@ public class MultipartFileUtil {
         }
     }
 
+    /**
+     * Returns if given file is a .txt file.
+     * @param file Not null
+     * @return
+     */
     public boolean isValidFileType(MultipartFile file) {
         if (file == null) {
             throw new NullPointerException(NULL_POINTER_MSG);

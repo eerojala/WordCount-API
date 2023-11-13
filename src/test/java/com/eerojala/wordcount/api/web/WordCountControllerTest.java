@@ -113,7 +113,7 @@ public class WordCountControllerTest {
     }
 
     @Test
-    void testFailsWithNullFile() throws Exception {
+    void testFailsWithNullFile() {
         var request = createMockRequest(null,"1");
         sendRequestExpectError(request, "file: 'must not be null'");
     }
