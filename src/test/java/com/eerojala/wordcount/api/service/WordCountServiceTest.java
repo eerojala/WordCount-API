@@ -16,7 +16,7 @@ public class WordCountServiceTest {
     private WordCountService service;
 
     @Test
-    void testCountMostCommonWordsReturnsMostCommonWordsInDescendingOrder() throws Exception {
+    void testCountMostCommonWordsReturnsMostCommonWordsInDescendingOrder() {
         String content = TestUtil.readStringFromFile("sample_text.txt");
         var hello = new WordCount("hello", 6);
         var world = new WordCount("world", 5);
@@ -52,7 +52,7 @@ public class WordCountServiceTest {
     }
 
     @Test
-    void testCountMostCommonWordsWorksIfThereAreMultipleWordsWithSameAmount() throws Exception {
+    void testCountMostCommonWordsWorksIfThereAreMultipleWordsWithSameAmount() {
         String content = "world foo bar bar foo hello";
         var foo = new WordCount("foo", 2);
         var bar = new WordCount("bar", 2);
@@ -78,7 +78,7 @@ public class WordCountServiceTest {
     }
 
     @Test
-    void testCountMostCommonWordsWorksWithNumbers() throws Exception {
+    void testCountMostCommonWordsWorksWithNumbers() {
         String content = TestUtil.readStringFromFile("numbers.txt");
         var one = new WordCount("1", 11);
         var two = new WordCount("2", 10);
@@ -106,7 +106,7 @@ public class WordCountServiceTest {
     }
 
     @Test
-    void testCountMostCommonWordsIgnoresSpecialCharacters() throws Exception {
+    void testCountMostCommonWordsIgnoresSpecialCharacters() {
         String content = TestUtil.readStringFromFile("special_characters.txt");
         var test = new WordCount("test", 14);
 
@@ -115,7 +115,7 @@ public class WordCountServiceTest {
     }
 
     @Test
-    void testCountMostCommonWordsWorksWithUTF8Characters() throws Exception {
+    void testCountMostCommonWordsWorksWithUTF8Characters() {
         String content = TestUtil.readStringFromFile("utf-8.txt");
         var finnish = new WordCount("ääliö", 3);
         var japanese = new WordCount("日本語", 2);
@@ -135,13 +135,19 @@ public class WordCountServiceTest {
     }
 
     @Test
-    void testCountMostCommonWordsRemovesExtraWhitespace() throws Exception {
+    void testCountMostCommonWordsRemovesExtraWhitespace() {
         String content = TestUtil.readStringFromFile("whitespace.txt");
         var foo = new WordCount("foo", 3);
         var bar = new WordCount("bar", 2);
 
         var expected = List.of(foo, bar);
         assertEquals(expected, service.countMostCommonWords(content, 2));
+    }
+
+    @Test
+    void testCountMostCommonWordsThrowsNullPointerExceptionWithNullString() {
+        TestUtil.assertNullPointerException(() -> service.countMostCommonWords(null, 1337),
+                "Given content cannot be null");
     }
 
     @Test

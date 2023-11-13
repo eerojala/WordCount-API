@@ -1,10 +1,12 @@
 package com.eerojala.wordcount.api.web;
 
+import com.eerojala.wordcount.api.exception.FileReadException;
 import com.eerojala.wordcount.api.helper.TestUtil;
 import com.eerojala.wordcount.api.model.WordCount;
 import com.eerojala.wordcount.api.service.WordCountService;
 import com.eerojala.wordcount.api.util.MultipartFileUtil;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -22,7 +24,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @SpringBootTest
@@ -52,7 +53,8 @@ public class WordCountControllerTest {
 
     @Test
     void testSucceedsWithValidFileAndAmount() throws Exception {
-        mockGetFileContent();
+        mockIsValidFileType(true);
+        mockReadFileContent();
         mockGetMostCommonWords();
         // NOTE: File size does not matter for MockMvc, see the commented out test further below for details
         var bigFile = TestUtil.createMockMultipartFileFromFile("big.txt");
@@ -70,8 +72,12 @@ public class WordCountControllerTest {
 
     }
 
-    private void mockGetFileContent() throws IOException {
-        Mockito.when(fileUtilMock.getFileContent(Mockito.any(MultipartFile.class))).thenReturn("test");
+    private void mockIsValidFileType(boolean isValid) {
+        Mockito.when(fileUtilMock.isValidFileType(Mockito.any(MultipartFile.class))).thenReturn(isValid);
+    }
+
+    private void mockReadFileContent() {
+        Mockito.when(fileUtilMock.readFileContent(Mockito.any(MultipartFile.class))).thenReturn("test");
     }
 
     private void mockGetMostCommonWords() {
@@ -112,15 +118,20 @@ public class WordCountControllerTest {
         sendRequestExpectError(request, "file: 'must not be null'");
     }
 
-    private void sendRequestExpectError(MockHttpServletRequestBuilder request, String errorMsg) throws Exception {
-        mvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(errorMsg));
+    private void sendRequestExpectError(MockHttpServletRequestBuilder request, String errorMsg) {
+        try {
+            mvc.perform(request)
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(errorMsg));
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
     }
 
     @Test
-    void testFailsWithStringAsFile() throws Exception {
+    void testFailsWithStringAsFile()  {
         var request = createMockRequest(null, "10").param("file", "file");
         var errorMsg = "file: 'Failed to convert value of type 'java.lang.String' to required type " +
                 "'org.springframework.web.multipart.MultipartFile'; Cannot convert value of type 'java.lang.String' " +
@@ -146,33 +157,33 @@ public class WordCountControllerTest {
     }*/
 
     @Test
-    void testFailsWithNullAmount() throws Exception {
+    void testFailsWithNullAmount() {
         var request = createMockRequest(null);
         sendRequestExpectError(request, "amount: 'must not be null'");
     }
 
     @Test
-    void testFailsWithAmountZero() throws Exception {
+    void testFailsWithAmountZero() {
         assertAmountTooLow("0");
     }
 
-    private void assertAmountTooLow(String amount) throws Exception {
+    private void assertAmountTooLow(String amount) {
         var request = createMockRequest(amount);
         sendRequestExpectError(request, ERROR_MSG_AMOUNT_TOO_LOW);
     }
 
     @Test
-    void testFailsWithAmountBelowZero() throws Exception {
+    void testFailsWithAmountBelowZero()  {
         assertAmountTooLow("" + Integer.MIN_VALUE);
     }
 
     @Test
-    void testFailsWithAmountAboveMax() throws Exception {
+    void testFailsWithAmountAboveMax()  {
         String aboveMax = "2147483648";
         assertIntegerConversionError(aboveMax);
     }
 
-    private void assertIntegerConversionError(String amount) throws Exception {
+    private void assertIntegerConversionError(String amount) {
         var request = createMockRequest(amount);
         String errorMsg =
                 "amount: 'Failed to convert value of type 'java.lang.String' to required type 'java.lang.Integer'; " +
@@ -183,20 +194,43 @@ public class WordCountControllerTest {
     }
 
     @Test
-    void testFailsWithAmountBelowMin() throws Exception {
+    void testFailsWithAmountBelowMin() {
         String belowMin = "-2147483649";
         assertIntegerConversionError(belowMin);
     }
 
     @Test
-    void testFailsWithNonIntegerAmount() throws Exception {
+    void testFailsWithNonIntegerAmount() {
         String nan = "1'";
         assertIntegerConversionError(nan);
     }
 
     @Test
-    void testFailsIfServiceMethodThrowsException() throws Exception {
-        mockGetFileContent();
+    void testFailsIfFileTypeIsNotTxt() {
+        mockIsValidFileType(false);
+        var request = createMockRequest("1000");
+        sendRequestExpectError(request, "Given file must be a .txt file");
+    }
+
+    @Test
+    void testFailsIfExceptionOccursDuringFileRead() {
+        String errorMsg = "Error while reading file - test";
+        mockIsValidFileType(true);
+        mockReadFileContentToThrowException(errorMsg);
+
+        var request = createMockRequest("10000");
+        sendRequestExpectError(request, errorMsg);
+    }
+
+    private void mockReadFileContentToThrowException(String errorMsg) {
+        Mockito.when(fileUtilMock.readFileContent(Mockito.any(MultipartFile.class)))
+                .thenThrow(new FileReadException(errorMsg));
+    }
+
+    @Test
+    void testFailsIfServiceMethodThrowsException() {
+        mockIsValidFileType(true);
+        mockReadFileContent();
         String errorMsg = "Test Exception!";
         mockGetMostCommonWordsToThrowException(errorMsg);
         var request = createMockRequest("100");

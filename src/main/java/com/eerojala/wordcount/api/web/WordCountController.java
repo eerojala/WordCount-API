@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,8 +20,15 @@ public class WordCountController {
     private MultipartFileUtil fileUtil;
 
     @PostMapping("/wordcount")
-    public List<WordCount> countWords(@Valid FileAndAmountDto dto) throws IOException {
-        String content = fileUtil.getFileContent(dto.getFile());
+    public List<WordCount> countWords(@Valid FileAndAmountDto dto)  {
+        var file = dto.getFile();
+
+        if (!fileUtil.isValidFileType(file)) {
+            throw new IllegalArgumentException("Given file must be a .txt file");
+        }
+
+        String content = fileUtil.readFileContent(file);
+
         return service.countMostCommonWords(content, dto.getAmount());
     }
 }
