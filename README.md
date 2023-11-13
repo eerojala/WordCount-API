@@ -17,7 +17,7 @@ Instructions:
       1. key: `file`, value: the text file you wish to count the word frequencies for. Maximum `file` size is 50 MB.
       2. key: `amount`, value: the amount of most common words from `file` you wish for the API to return, i.e if `amount` = 10 then the API will return the 10 most common words from `file`. `amount` must be an integer between 1 and 2147483647.
      
- [Here]{https://apidog.com/blog/postman-upload-file-detailed-guide/} is a guide on how you can send a file with Postman.
+ [Here](https://apidog.com/blog/postman-upload-file-detailed-guide/) is a guide on how you can send a file with Postman.
 
  Below are screenshots of my Postman test request for reference:
 ![Headers](https://github.com/eerojala/WordCount-API/assets/11409371/dd7a27b8-be51-4757-9de0-f4f0aed086dc)
