@@ -64,7 +64,7 @@ public class WordCountServiceTest {
 
         assertTrue(wordCountAtIndexEitherOr(result, 0, foo, bar));
         assertTrue(wordCountAtIndexEitherOr(result, 1, foo, bar));
-        assertNotEquals(result.get(0), result.get(1)); // Record default equals checks fields
+        assertNotEquals(result.get(0), result.get(1)); // Record equals default implementation compares fields
 
         assertTrue(wordCountAtIndexEitherOr(result, 2, hello, world));
         assertTrue(wordCountAtIndexEitherOr(result, 3, world, hello));
