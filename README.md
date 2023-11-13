@@ -2,9 +2,9 @@
 A simple API implemented with Spring Boot for counting word frequencies in text files.
 Returns the most common words found in the text file in an descending order array of JSON objects with the format of { word: `word`, amount: `amount` }, e.g. `[{ word: "foo", amount: 2 }, { word: "bar", amount: 1}]`.
 
-Must have Java runtime environment (JRE) installed in your computer (Java version 21 or above) to run the .jar file. If you want to pull and compile the code yourself then you will also need a Java Development Kit (JDK, Java version 21 or above).
+Must have Java runtime environment (JRE) installed in your computer (Java version 21 or above) to run the .jar file. If you want to pull and compile the code yourself then you will also need a Java Development Kit (JDK, Java version 21 or above). Also if you wish to run the automated tests you additionaly need to have git and maven installed.
 
-Instructions:
+Run app -instructions:
 1. Download the .jar file from the release page https://github.com/eerojala/WordCount-API/releases/tag/v1.0
 2. Place the .jar on location of your choosing and open a command line terminal.
 3. Open/navigate the command line whereever you placed the .jar
@@ -23,7 +23,12 @@ Instructions:
 ![Headers](https://github.com/eerojala/WordCount-API/assets/11409371/dd7a27b8-be51-4757-9de0-f4f0aed086dc)
 ![Body](https://github.com/eerojala/WordCount-API/assets/11409371/24a32aaa-6a71-42c5-8b01-2f0cb7fbab53)
 
-
+Run tests -instructions:
+1. Clone this repository to your computer
+2. After cloning the repository navigate to the root folder of the repository using a command line
+3. Compile & run the code with `mvn install`
+  * If you want to only compile the code first without running the tests you can do it with `mvn install -DskipTests`
+4. After successfully compiling the code once you can then use `mvn test` to only run the tests without recompiling.
     
     
    
