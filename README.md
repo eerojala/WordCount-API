@@ -26,9 +26,6 @@ Run app -instructions:
 Run tests -instructions:
 1. Clone this repository to your computer
 2. After cloning the repository navigate to the root folder of the repository using a command line
-3. Compile & run the code with `mvn install`
-  * If you want to only compile the code first without running the tests you can do it with `mvn install -DskipTests`
-4. After successfully compiling the code once you can then use `mvn test` to only run the tests without recompiling.
-    
+3. Run the tests either with `mvn install` or `mvm test`
     
    
