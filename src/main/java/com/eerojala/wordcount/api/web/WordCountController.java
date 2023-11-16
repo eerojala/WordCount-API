@@ -19,7 +19,7 @@ public class WordCountController {
     @Autowired
     private MultipartFileUtil fileUtil;
 
-    @PostMapping("/wordcount")
+    @PostMapping("/")
     public List<WordCount> countWords(@Valid FileAndAmountDto dto)  {
         var file = dto.getFile();
 
