@@ -1,5 +1,5 @@
 # WordCount-API
-A simple API implemented with Spring Boot for counting word frequencies in text files.
+A simple API implemented with Spring Boot for counting word frequencies in .txt files.
 Returns the most common words found in the text file in an descending order array of JSON objects with the format of { word: `word`, amount: `amount` }, e.g. `[{ word: "foo", amount: 2 }, { word: "bar", amount: 1}]`.
 Has a simple barebones thymeleaf UI running on root address.
 
@@ -15,12 +15,12 @@ Run app -instructions:
 7. To count word frequencies directly with HTTP you can make HTTP POST requests to localhost:8080 with following information:
    1. Headers: `content-type multipart/form-data`
    2. Body: two key/value pairs:
-      1. key: `file`, value: the text file you wish to count the word frequencies for. Maximum `file` size is 50 MB.
+      1. key: `file`, value: the .txt file you wish to count the word frequencies for. Maximum `file` size is 50 MB.
       2. key: `amount`, value: the amount of most common words from `file` you wish for the API to return, i.e if `amount` = 10 then the API will return the 10 most common words from `file`. `amount` must be an integer between 1 and 2147483647.
      
  [Here](https://apidog.com/blog/postman-upload-file-detailed-guide/) is a guide on how you can send a file with Postman.
 
- Below are screenshots of my Postman test request for reference:
+Below are screenshots of my Postman test request for reference:
 ![Headers](https://github.com/eerojala/WordCount-API/assets/11409371/dd7a27b8-be51-4757-9de0-f4f0aed086dc)
 ![Body](https://github.com/eerojala/WordCount-API/assets/11409371/24a32aaa-6a71-42c5-8b01-2f0cb7fbab53)
 
