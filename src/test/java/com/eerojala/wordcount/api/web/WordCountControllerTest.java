@@ -28,7 +28,7 @@ import java.util.List;
 
 @SpringBootTest
 public class WordCountControllerTest {
-    private static final String ENDPOINT = "/wordcount";
+    private static final String ENDPOINT = "/";
     private static final String ERROR_MSG_AMOUNT_TOO_LOW = "amount: 'must be greater than 0'";
     private static final Integer BAR_AMOUNT = 1;
     private static final Integer FOO_AMOUNT = 2;
